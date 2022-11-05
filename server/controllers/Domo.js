@@ -1,4 +1,5 @@
 const models = require('../models');
+const domoModel = require('../models/Domo');
 
 const { Domo } = models;
 
@@ -15,7 +16,8 @@ const makeDomo = async (req, res) => {
   try {
     const newDomo = new Domo(domoData);
     await newDomo.save();
-    return res.json({ redirect: '/maker' });
+    // return res.json({ redirect: '/maker' });
+    return res.status(201).json({name: newDomo.name, age: newDomo.age});
   } catch (err) {
     if (err.code === 11000) {
       return res.status(400).json({ error: 'Domo already exists!' });
@@ -25,18 +27,29 @@ const makeDomo = async (req, res) => {
 };
 
 const makerPage = (req, res) => {
-  Domo.findByOwner(req.session.account._id, (err, docs) => {
+  // Domo.findByOwner(req.session.account._id, (err, docs) => {
+  //   if (err) {
+  //     console.log(err);
+  //     return res.status(400).json({ error: 'An error has occurred' });
+  //   }
+  //   return res.render('app', { csrfToken: req.csrfToken(), domos: docs });
+  // });
+
+  return res.render('app');
+};
+
+const getDomos = (req, res) => {
+  return domoModel.findByOwner(req.session.account._id, (err, docs) => {
     if (err) {
       console.log(err);
-      return res.status(400).json({ error: 'An error has occurred' });
+      return res.status(400).json({ error: "an error has occurred!" });
     }
-    return res.render('app', { csrfToken: req.csrfToken(), domos: docs });
-  });
-
-  // res.render('app');
-};
+    return res.json({ domos: docs });
+  })
+}
 
 module.exports = {
   makerPage,
   makeDomo,
+  getDomos,
 };

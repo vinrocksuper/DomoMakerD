@@ -4,8 +4,6 @@ const { Account } = models;
 
 const loginPage = (req, res) => res.render('login', { csrfToken: req.csrfToken() });
 
-const signupPage = (req, res) => res.render('signup', { csrfToken: req.csrfToken() });
-
 const logout = (req, res) => {
   req.session.destroy();
   res.redirect('/');
@@ -37,7 +35,6 @@ const signup = async (req, res) => {
   if (!username || !pass || !pass2) {
     return res.status(400).json({ error: 'All fields are required' });
   }
-
   if (pass !== pass2) {
     return res.status(400).json({ error: 'Passwords do not match' });
   }
@@ -49,18 +46,21 @@ const signup = async (req, res) => {
     req.session.account = Account.toAPI(newAccount);
     return res.json({ redirect: '/maker' });
   } catch (e) {
-    console.log(e);
+    console.log(e.code);
     if (e.code === 11000) {
+      console.log('username alr exists');
       return res.status(400).json({ error: 'Username already exists' });
     }
     return res.status(400).json({ error: 'An error occurred' });
   }
 };
 
+const getToken = (req, res) => res.json({ csrfToken: req.csrfToken() });
+
 module.exports = {
   loginPage,
-  signupPage,
   logout,
   login,
   signup,
+  getToken,
 };
